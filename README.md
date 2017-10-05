@@ -13,7 +13,7 @@ s3_folder = '/some_folder'
 
 download_orchestrator = ResourceDownloadOrchestrator(dest_dir='/resources',
                                                         resource_downloader=S3FolderDownloader(s3_bucket_name, s3_folder),
-                                                        resource_descriptor=S3FolderResourceDescriptor(s3_folder, s3_bucket_name),
+                                                        resource_descriptor=S3FolderResourceDescriptor(s3_bucket_name, s3_folder),
                                                         post_download_processors=[FileUnzipper(delete_archive=True)],
                                                         logger=logging.getLogger('someLoggerName'),
                                                         clear_dest_dir=True)
