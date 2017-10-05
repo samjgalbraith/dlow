@@ -1,6 +1,13 @@
 # dlow
 A library for downloading an S3 folder recursively and unzipping its contents. Extensible to other sources and post-processes.
 
+## Installation
+This library is available via pip from PyPI
+
+```bash
+pip install dlow
+```
+
 ## Example use
 ```python
 import logging
