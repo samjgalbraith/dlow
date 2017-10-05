@@ -19,3 +19,7 @@ download_orchestrator = ResourceDownloadOrchestrator(dest_dir='/resources',
                                                         clear_dest_dir=True)
 download_orchestrator.ensure_resources_ready()
 ```
+
+## AWS authentication for S3
+This library uses the boto3 library to access S3. This reads the same configuration files on your host filesystem as the AWS CLI.
+See http://docs.aws.amazon.com/cli/latest/userguide/cli-chap-getting-started.html
