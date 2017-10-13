@@ -56,7 +56,7 @@ class PostDownloadFileProcessor(object):
 
 class ResourceDownloadOrchestrator:
 
-    def __init__(self, dest_dir, resource_downloader, resource_descriptor, post_download_processors=[], logger=logging.getLogger(), error_on_nothing_downloaded=True, clear_dest_dir=False):
+    def __init__(self, dest_dir, resource_downloader, resource_descriptor, pid_lockfile_path=None, post_download_processors=[], logger=logging.getLogger(), error_on_nothing_downloaded=True, clear_dest_dir=False):
         self._dest_dir = dest_dir
         self._resource_downloader = resource_downloader
         self._resource_descriptor = resource_descriptor
@@ -67,7 +67,7 @@ class ResourceDownloadOrchestrator:
 
     def _post_process_downloaded_file(self, file_path):
         for processor in self._post_download_processors:
-            processor.process(file_path)
+            processor.process(file_path, logger=self._logger)
 
     def _clear_destination_dir(self):
         """Deletes all existing files and subdirectories in the destination directory."""
@@ -91,7 +91,7 @@ class ResourceDownloadOrchestrator:
 
             post_download_processing_threads = []
             num_files_downloaded = 0
-            for downloaded_file_path in self._resource_downloader.iter_downloaded_files(self._dest_dir):
+            for downloaded_file_path in self._resource_downloader.iter_downloaded_files(self._dest_dir, logger=self._logger):
                 num_files_downloaded += 1
                 # Start a background thread to post-process the downloaded file.
                 post_process_thread = threading.Thread(target=self._post_process_downloaded_file, args=(downloaded_file_path,))
