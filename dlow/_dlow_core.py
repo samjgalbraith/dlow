@@ -56,18 +56,17 @@ class PostDownloadFileProcessor(object):
 
 class ResourceDownloadOrchestrator:
 
-    def __init__(self, dest_dir, resource_downloader, resource_descriptor, pid_lockfile_path=None, post_download_processors=[], logger=logging.getLogger(), error_on_nothing_downloaded=True, clear_dest_dir=False):
+    def __init__(self, dest_dir, resource_downloader, resource_descriptor, post_download_processors=[], error_on_nothing_downloaded=True, clear_dest_dir=False):
         self._dest_dir = dest_dir
         self._resource_downloader = resource_downloader
         self._resource_descriptor = resource_descriptor
         self._post_download_processors = post_download_processors
-        self._logger = logger
         self._error_on_nothing_downloaded = error_on_nothing_downloaded
         self._clear_dest_dir = clear_dest_dir
 
-    def _post_process_downloaded_file(self, file_path):
+    def _post_process_downloaded_file(self, file_path, logger):
         for processor in self._post_download_processors:
-            processor.process(file_path, logger=self._logger)
+            processor.process(file_path, logger=logger)
 
     def _clear_destination_dir(self):
         """Deletes all existing files and subdirectories in the destination directory."""
@@ -80,8 +79,8 @@ class ResourceDownloadOrchestrator:
                 # We were only looking for the current directory so once we hit it we know we don't need to keep iterating.
                 break
 
-    def ensure_resources_ready(self):
-        download_state_flagger = DownloadStateFlagger(self._dest_dir, self._resource_descriptor, logger=self._logger)
+    def ensure_resources_ready(self, logger=logging.getLogger()):
+        download_state_flagger = DownloadStateFlagger(self._dest_dir, self._resource_descriptor, logger=logger)
         if download_state_flagger.is_flagged_as_ready():
             return
         else:
@@ -91,10 +90,10 @@ class ResourceDownloadOrchestrator:
 
             post_download_processing_threads = []
             num_files_downloaded = 0
-            for downloaded_file_path in self._resource_downloader.iter_downloaded_files(self._dest_dir, logger=self._logger):
+            for downloaded_file_path in self._resource_downloader.iter_downloaded_files(self._dest_dir, logger=logger):
                 num_files_downloaded += 1
                 # Start a background thread to post-process the downloaded file.
-                post_process_thread = threading.Thread(target=self._post_process_downloaded_file, args=(downloaded_file_path,))
+                post_process_thread = threading.Thread(target=self._post_process_downloaded_file, args=(downloaded_file_path,logger))
                 post_process_thread.start()
                 post_download_processing_threads.append(post_process_thread)
 
@@ -104,9 +103,13 @@ class ResourceDownloadOrchestrator:
 
             if num_files_downloaded == 0:
                 nothing_downloaded_message = 'Downloaded zero files. Check your configuration and that the source contains resources.'
-                self._logger.warn(nothing_downloaded_message)
+                logger.warn(nothing_downloaded_message)
                 if self._error_on_nothing_downloaded:
                     raise IOError(nothing_downloaded_message)
 
             download_state_flagger.flag_as_ready()
-            self._logger.info('Flagged downloaded resources as ready.')
+            logger.info('Flagged downloaded resources as ready.')
+    
+    def resources_are_ready(self):
+        download_state_flagger = DownloadStateFlagger(self._dest_dir, self._resource_descriptor)
+        return download_state_flagger.is_flagged_as_ready()
