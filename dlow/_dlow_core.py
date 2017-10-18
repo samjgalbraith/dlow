@@ -27,7 +27,7 @@ class DownloadStateFlagger(object):
 
     def flag_as_ready(self):
         """Flags the folder as downloaded and ready to consume."""
-        self._logger.info("Flagging the resource '%s' as ready for the service to consume." % (self._download_resource_descriptor.__str__(),))
+        self._logger.info("Flagging the resource '%s' as ready to consume." % (self._download_resource_descriptor.__str__(),))
         with open(self._download_ready_file_path, 'w') as ready_file:
             ready_file.write(self._download_resource_descriptor.__str__())
 
