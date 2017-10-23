@@ -3,7 +3,7 @@ from setuptools import find_packages
 
 setup(
     name='dlow',
-    version='0.3.1',
+    version='0.3.2',
     packages=find_packages(),
     install_requires=['boto3>=1.0.0'],
     url='https://github.com/theflyingnerd/dlow',
