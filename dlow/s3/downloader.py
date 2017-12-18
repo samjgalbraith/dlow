@@ -45,9 +45,9 @@ class S3FolderDownloader(ResourceDownloader):
                 if not os.path.exists(dest_folder_of_file):
                     logger.info('Creating local directory %s' % (dest_folder_of_file,))
                     os.makedirs(dest_folder_of_file)
-                logger.info('Starting download of object %s from bucket %s to local directory %s' % (
-                    s3_object_key, self._s3_bucket_name, dest_path_of_file))
-                self._s3_resource.meta.client.download_file(self._s3_bucket_name, s3_object_key, dest_path_of_file)
+                logger.info('Starting download of object %s from bucket %s to local directory %s' % (s3_object_key, self._s3_bucket_name, dest_path_of_file))
+                with open(dest_path_of_file, 'wb') as local_file_handle:
+                    self._s3_client.download_fileobj(self._s3_bucket_name, s3_object_key, local_file_handle)
                 logger.info('Finished download of object %s from bucket %s to local directory %s' % (s3_object_key, self._s3_bucket_name, dest_path_of_file))
 
                 yield dest_path_of_file
