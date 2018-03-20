@@ -1,1 +1,1 @@
-from file_unzipper import FileUnzipper
+from .file_unzipper import FileUnzipper
